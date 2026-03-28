@@ -367,16 +367,26 @@ body { background: #f0f2f5; }
 .dropdown-menu-custom .logout-item:hover i {
     color: #dc2626;
 }
+.btn-outline-light {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-outline-light i, 
+.btn-outline-light span {
+    display: inline-block;
+}
 </style>
 
 </head>
 <body>
 
 <!-- NAVBAR -->
-<nav class="navbar navbar-dark px-4 d-flex justify-content-between">
+<nav class="navbar navbar-dark px-4 d-flex justify-content-between" style="background: black;">
     <a href="index.php" class="navbar-brand d-flex align-items-center">
-        <img src="../gambar/sepatu.png" width="35" class="me-2">
-        <span class="fw-bold fs-5">TokoSepatu</span>
+        <span style="font-size: 1.8rem;">👟</span>
+        <span class="fw-bold fs-5 ms-2">TokoSepatu</span>
     </a>
 
     <form class="d-flex" method="GET">
@@ -386,37 +396,54 @@ body { background: #f0f2f5; }
         <button class="btn btn-outline-light">Search</button>
     </form>
 
-    <div>
-        <?php if(isset($_SESSION['customer'])){ ?>
-            <!-- Profile Dropdown dengan Foto -->
-            <div class="profile-dropdown" id="profileDropdown">
-                <button class="profile-btn" onclick="toggleDropdown()">
-                    <img src="../uploads/profiles/<?= $foto_customer ?>?t=<?= time() ?>" 
-                         class="profile-avatar" 
-                         alt="Avatar"
-                         onerror="this.src='../uploads/profiles/default.jpg'">
-                    <?= htmlspecialchars($nama_customer) ?>
-                    <i class="fas fa-chevron-down" style="font-size: 0.7rem;"></i>
-                </button>
-                <div class="dropdown-menu-custom">
-                    <a href="riwayat.php">
-                        <i class="fas fa-history"></i>
-                        Riwayat Transaksi
-                    </a>
-                    <a href="profile.php">
-                        <i class="fas fa-user"></i>
-                        Profil Saya
-                    </a>
-                    <div class="dropdown-divider"></div>
-                    <a href="logout.php" class="logout-item">
-                        <i class="fas fa-sign-out-alt"></i>
-                        Logout
-                    </a>
-                </div>
+    <div class="d-flex align-items-center gap-2">
+    <?php if(isset($_SESSION['customer'])){ 
+        $id_customer = $_SESSION['customer'];
+        $query_customer = mysqli_query($conn, "SELECT username, foto FROM customer WHERE id='$id_customer'");
+        $customer_data = mysqli_fetch_array($query_customer);
+        $nama_customer = $customer_data['username'];
+        $foto_customer = $customer_data['foto'] ?? 'default.jpg';
+        
+        $cart_query = mysqli_query($conn, "SELECT SUM(qty) as total FROM keranjang WHERE id_customer='$id_customer'");
+        $cart_data = mysqli_fetch_array($cart_query);
+        $cart_count = $cart_data['total'] ?? 0;
+    ?>
+        <!-- ICON KERANJANG -->
+        <a href="keranjang.php" class="btn btn-outline-light position-relative" style="display: inline-flex; align-items: center; justify-content: center; width: 42px; height: 42px; padding: 0; border-radius: 50%;">
+            🛒
+            <?php if($cart_count > 0): ?>
+                <span class="badge bg-danger rounded-pill position-absolute" style="top: -4px; right: -4px; font-size: 0.65rem; padding: 2px 5px;">
+                    <?= $cart_count ?>
+                </span>
+            <?php endif; ?>
+        </a>
+
+        <!-- Profile Dropdown -->
+        <div class="profile-dropdown" id="profileDropdown">
+            <button class="profile-btn" onclick="toggleDropdown()">
+                <img src="../uploads/profiles/<?= $foto_customer ?>?t=<?= time() ?>" 
+                     class="profile-avatar" 
+                     alt="Avatar"
+                     onerror="this.src='../uploads/profiles/default.jpg'">
+                <?= htmlspecialchars($nama_customer) ?>
+                <i class="fas fa-chevron-down" style="font-size: 0.7rem;"></i>
+            </button>
+            <div class="dropdown-menu-custom">
+                <a href="riwayat.php">
+                    <i class="fas fa-history"></i> Riwayat Transaksi
+                </a>
+                <a href="profile.php">
+                    <i class="fas fa-user"></i> Profil Saya
+                </a>
+                <div class="dropdown-divider"></div>
+                <a href="logout.php" class="logout-item">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
             </div>
-        <?php } else { ?>
-            <a href="login.php" class="btn btn-outline-light">Login</a>
-        <?php } ?>
+        </div>
+    <?php } else { ?>
+        <a href="login.php" class="btn btn-outline-light">Login</a>
+    <?php } ?>
     </div>
 </nav>
 
